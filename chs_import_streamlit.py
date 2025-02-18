@@ -52,4 +52,22 @@ if st.button("실행"):
                 # 키워드 아래 행부터 끝까지 해당 열의 데이터 가져오기
                 values = [
                     str(ws.cell(row=i, column=target_column).value).replace("\n", "\n")  # 줄바꿈 유지
-                    for i in ra
+                    for i in range(target_row + 1, ws.max_row + 1)
+                    if ws.cell(row=i, column=target_column).value is not None
+                ]
+
+                # 엑셀에서 한 셀 안에 줄바꿈이 유지되도록 " "로 감싸기
+                if values:
+                    formatted_text = "\n".join(f'"{value}"' for value in values)  # 줄바꿈 유지
+                    pyperclip.copy(formatted_text)
+
+                    # 결과 표시
+                    st.success("✅ 클립보드에 복사 완료!")
+                    st.text_area("📋 복사된 내용", formatted_text, height=200)
+                else:
+                    st.warning("⚠️ 복사할 데이터가 없습니다.")
+            
+            # 워크북 닫기
+            wb.close()
+        else:
+            st.error("❌ 파일이 존재하지 않습니다.")
