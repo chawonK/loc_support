@@ -8,18 +8,21 @@ st.title("엑셀 데이터 복사")
 st.caption(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 클립보드에 복사됩니다.]")
 
 # 기본 폴더 및 키워드 설정
-default_directory_path = "C:/Users/jaguar/Downloads"  # 기본 경로
+default_directory_path = os.path.expanduser("~/Downloads")  # 기본 경로 (홈 디렉토리 사용)
 default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese"]  # 기본 키워드
 
 # 📂 폴더 경로 입력 (사용자가 수정 가능)
 directory_path = st.text_input("📂 파일이 있는 폴더 경로", value=default_directory_path)
 
-# ✅ 폴더 유효성 검사
-if not os.path.exists(directory_path):
+# ✅ 경로를 절대경로로 변환
+directory_path = os.path.abspath(directory_path)
+
+# ✅ 폴더 존재 여부 확인
+if not os.path.isdir(directory_path):  # `isdir()` 사용
     st.error("❌ 입력한 폴더 경로가 존재하지 않습니다. 올바른 경로를 입력하세요.")
     xlsx_files = []
 else:
-    # 폴더 내 엑셀 파일 목록 가져오기
+    # 📄 폴더 내 엑셀 파일 목록 가져오기
     xlsx_files = [f for f in os.listdir(directory_path) if f.endswith(".xlsx")]
 
 # 📄 파일 선택 (자동으로 불러오기)
