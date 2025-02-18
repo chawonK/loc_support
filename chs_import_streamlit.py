@@ -1,6 +1,5 @@
 import streamlit as st
 import openpyxl
-import pyperclip
 import os
 
 st.title('엑셀 데이터 복사')
@@ -12,6 +11,8 @@ uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["x
 # 키워드 입력
 default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese"]
 keywords_input = st.text_area("찾을 키워드", value=", ".join(default_keywords))
+
+formatted_text = ""  # 복사할 텍스트를 저장할 변수
 
 # 실행 버튼
 if st.button("실행"):
@@ -45,10 +46,14 @@ if st.button("실행"):
             
             if values:
                 formatted_text = "\r\n".join(f'"{value}"' for value in values)
-                pyperclip.copy(formatted_text)
-                st.success("✅ 클립보드에 복사 완료!")
-                st.text_area("복사된 내용", formatted_text, height=200)
+                st.success("✅ 데이터 추출 완료!")
             else:
                 st.warning("⚠️ 복사할 데이터가 없습니다.")
 
         wb.close()
+
+# 📋 "복사하기" 버튼 추가
+if formatted_text:
+    st.text_area("복사할 내용", formatted_text, height=200)
+    st.write("👉 아래 버튼을 클릭 후 **Ctrl + C** 또는 **Cmd + C**로 복사하세요!")
+    st.button("📋 복사하
