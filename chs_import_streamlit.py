@@ -7,7 +7,6 @@ import streamlit as st
 st.title('엑셀 데이터 복사')
 st.caption(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 클립보드에 복사됩니다.]")
 
-
 # 미리 설정된 폴더 경로 및 키워드
 default_directory_path = "C:/Users/jaguar/Downloads"  # 기본 경로
 default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN","Simplified Chinese"]  # 기본 키워드
