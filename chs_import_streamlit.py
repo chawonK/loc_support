@@ -14,9 +14,6 @@ default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese
 # 폴더 경로 입력 (사용자가 수정할 수 있음)
 directory_path = st.text_input("파일이 있는 폴더 경로", value=default_directory_path)
 
-# ✅ 경로를 절대경로로 변환
-directory_path = os.path.abspath(directory_path)
-
 # 🚀 **디버깅용 출력 (Streamlit에서 직접 확인)**
 st.write(f"🔍 입력된 폴더 경로: `{directory_path}`")
 st.write(f"✅ 경로 존재 여부: `{os.path.exists(directory_path)}`")
