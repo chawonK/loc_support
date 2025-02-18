@@ -11,20 +11,29 @@ st.caption(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용�
 default_directory_path = "C:/Users/jaguar/Downloads"  # 기본 경로
 default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese"]  # 기본 키워드
 
-# 폴더 경로 입력 (사용자가 수정 가능)
+# 📂 폴더 경로 입력 (사용자가 수정 가능)
 directory_path = st.text_input("📂 파일이 있는 폴더 경로", value=default_directory_path)
 
-# 폴더 내 엑셀 파일 자동 탐색 및 선택
-xlsx_files = [f for f in os.listdir(directory_path) if f.endswith(".xlsx")] if os.path.exists(directory_path) else []
-if not xlsx_files:
-    st.warning("⚠️ 해당 폴더에 `.xlsx` 파일이 없습니다. 경로를 확인하세요.")
-file_name = st.selectbox("📄 파일 선택", xlsx_files) if xlsx_files else None
+# ✅ 폴더 유효성 검사
+if not os.path.exists(directory_path):
+    st.error("❌ 입력한 폴더 경로가 존재하지 않습니다. 올바른 경로를 입력하세요.")
+    xlsx_files = []
+else:
+    # 폴더 내 엑셀 파일 목록 가져오기
+    xlsx_files = [f for f in os.listdir(directory_path) if f.endswith(".xlsx")]
 
-# 키워드 입력 (사용자가 수정 가능)
+# 📄 파일 선택 (자동으로 불러오기)
+if xlsx_files:
+    file_name = st.selectbox("📄 파일 선택", xlsx_files)
+else:
+    file_name = None
+    st.warning("⚠️ 해당 폴더에 `.xlsx` 파일이 없습니다. 경로를 확인하세요.")
+
+# 🔍 키워드 입력 (사용자가 수정 가능)
 keywords_input = st.text_area("🔍 찾을 키워드(언어열 이름)", value=", ".join(default_keywords))
 keywords = [keyword.strip() for keyword in keywords_input.split(",")]
 
-# 실행 버튼
+# ▶ 실행 버튼
 if st.button("실행"):
     if not file_name:
         st.error("❌ 파일을 선택하세요!")
