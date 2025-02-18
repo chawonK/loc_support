@@ -6,7 +6,10 @@ import pyperclip
 st.title('엑셀 데이터 복사')
 st.caption(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 클립보드에 복사됩니다.]")
 
+# 파일 업로드 기능
 uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx"])
+
+# 키워드 입력
 default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese"]
 keywords_input = st.text_area("찾을 키워드", value=", ".join(default_keywords))
 
@@ -41,12 +44,20 @@ if st.button("실행"):
             
             if values:
                 formatted_text = "\r\n".join(f'"{value}"' for value in values)
-                try:
-                    pyperclip.copy(formatted_text)
-                    st.success("✅ 클립보드에 복사 완료!")
-                except pyperclip.PyperclipException:
-                    st.warning("⚠️ 현재 환경에서는 클립보드 복사가 지원되지 않습니다.")
-
+                
+                # 로컬 환경에서만 pyperclip 사용
+                if "STREAMLIT_SERVER" not in os.environ:  # 로컬 환경에서만 실행되도록 설정
+                    try:
+                        pyperclip.copy(formatted_text)
+                        st.success("✅ 클립보드에 복사 완료!")
+                    except pyperclip.PyperclipException:
+                        st.warning("⚠️ 현재 환경에서는 클립보드 복사가 지원되지 않습니다.")
+                else:
+                    st.warning("⚠️ 클립보드 복사는 서버 환경에서 지원되지 않습니다.")
+                
+            else:
+                st.warning("⚠️ 복사할 데이터가 없습니다.")
+                
         wb.close()
 
 if formatted_text:
