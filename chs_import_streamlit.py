@@ -17,6 +17,10 @@ directory_path = st.text_input("📂 파일이 있는 폴더 경로", value=defa
 # ✅ 경로를 절대경로로 변환
 directory_path = os.path.abspath(directory_path)
 
+# 🚀 **디버깅용 출력 (Streamlit에서 직접 확인)**
+st.write(f"🔍 입력된 폴더 경로: `{directory_path}`")
+st.write(f"✅ 경로 존재 여부: `{os.path.exists(directory_path)}`")
+
 # ✅ 폴더 존재 여부 확인
 if not os.path.isdir(directory_path):  # `isdir()` 사용
     st.error("❌ 입력한 폴더 경로가 존재하지 않습니다. 올바른 경로를 입력하세요.")
@@ -42,6 +46,11 @@ if st.button("실행"):
         st.error("❌ 파일을 선택하세요!")
     else:
         file_path = os.path.join(directory_path, file_name)
+        
+        # 🚀 디버깅: 선택한 파일 경로 확인
+        st.write(f"📂 선택한 파일 경로: `{file_path}`")
+        st.write(f"✅ 파일 존재 여부: `{os.path.exists(file_path)}`")
+
         if os.path.exists(file_path):
             # 엑셀 파일 열기
             wb = openpyxl.load_workbook(file_path, data_only=True)
