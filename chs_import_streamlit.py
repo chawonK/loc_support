@@ -8,11 +8,11 @@ st.title("엑셀 데이터 복사")
 st.caption(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 클립보드에 복사됩니다.]")
 
 # 기본 폴더 및 키워드 설정
-default_directory_path = os.path.expanduser("~/Downloads")  # 기본 경로 (홈 디렉토리 사용)
+default_directory_path = "C:/Users/jaguar/Downloads"  # 기본 경로
 default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese"]  # 기본 키워드
 
-# 📂 폴더 경로 입력 (사용자가 수정 가능)
-directory_path = st.text_input("📂 파일이 있는 폴더 경로", value=default_directory_path)
+# 폴더 경로 입력 (사용자가 수정할 수 있음)
+directory_path = st.text_input("파일이 있는 폴더 경로", value=default_directory_path)
 
 # ✅ 경로를 절대경로로 변환
 directory_path = os.path.abspath(directory_path)
