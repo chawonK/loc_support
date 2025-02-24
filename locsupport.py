@@ -5,6 +5,7 @@ import io
 import fitz  # PyMuPDF
 import re
 import tempfile
+import zipfile
 from io import BytesIO
 from docx import Document
 from pptx import Presentation
@@ -70,18 +71,20 @@ elif page == "엑셀 시트 분할":
         else:
             # ZIP 파일을 메모리에 생성
             zip_buffer = BytesIO()
+            zip_file = zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED)
     
-            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-                for sheet_name in excel_file.sheet_names:
-                    df = excel_file.parse(sheet_name)
-                    
-                    # 각 시트를 엑셀 파일로 변환
-                    sheet_io = BytesIO()
-                    with pd.ExcelWriter(sheet_io, engine="xlsxwriter") as writer:
-                        df.to_excel(writer, index=False, sheet_name=sheet_name)
-                    
-                    # ZIP에 추가
-                    zip_file.writestr(f"{sheet_name}.xlsx", sheet_io.getvalue())
+            for sheet_name in excel_file.sheet_names:
+                df = excel_file.parse(sheet_name)
+                
+                # 각 시트를 엑셀 파일로 변환
+                sheet_io = BytesIO()
+                with pd.ExcelWriter(sheet_io, engine="xlsxwriter") as writer:
+                    df.to_excel(writer, index=False, sheet_name=sheet_name)
+                
+                # ZIP에 추가
+                zip_file.writestr(f"{sheet_name}.xlsx", sheet_io.getvalue())
+    
+            zip_file.close()  # ZIP 파일 닫기
     
             # ZIP 파일 다운로드
             zip_buffer.seek(0)
