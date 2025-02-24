@@ -98,6 +98,7 @@ elif page == "엑셀 시트 분할":
 # 3. 단어수 카운터
 elif page == "단어수 카운터":
     st.title("🔢 단어수 카운터")
+    st.caption("※ 여러 언어가 섞인 파일은 단어수가 부정확하게 나옵니다. 참고용으로만 이용해주세요.")
     uploaded_file = st.file_uploader("파일 업로드 (Word, PPTX, Excel, PDF, TXT)", type=["pptx", "docx", "xlsx", "pdf", "txt"])
 
     def count_words(text):
@@ -133,6 +134,7 @@ elif page == "단어수 카운터":
 # 4. 월간 보고 데이터
 elif page == "월간 보고 데이터":
     st.title("📊 Jira CSV 데이터 추출기")
+    st.caption("Jira에서 요청 필터 페이지에서 우측 상단의 '보기' > 'CSV (모든 필드)'로 다운로드 받은 월별 전체 요청 파일을 업로드 하면 월별 프로젝트별 요청수, 단어수 합계를 볼 수 있습니다.")
     uploaded_file = st.file_uploader("CSV 파일 업로드", type=["csv"])
 
     if uploaded_file:
