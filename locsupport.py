@@ -46,7 +46,7 @@ if page == "엑셀 데이터 복사":
             formatted_text = "\n".join(f'"{value}"' for value in values)
 
             if values:
-                st.success("✅ 데이터 준비 완료!")
+                st.success("✅ 데이터 준비 완료! 아래 박스에서 복사해서 사용하세요.")
                 st.text_area("복사된 내용", formatted_text, height=200)
                 st.download_button("📥 텍스트 다운로드", formatted_text, "data.txt")
             else:
@@ -57,23 +57,40 @@ if page == "엑셀 데이터 복사":
 # 2. 엑셀 시트 분할
 elif page == "엑셀 시트 분할":
     st.title("✂️ 엑셀 시트 분할")
-    uploaded_file = st.file_uploader("엑셀 파일 업로드", type=["xlsx"])
-
-    if uploaded_file and st.button("🚀 실행"):
+    st.caption("※ 엑셀 파일의 각 시트를 새로운 파일로 분할하여 ZIP으로 다운로드합니다.")
+    
+    uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요 (.xlsx)", type=["xlsx"])
+    
+    if uploaded_file:
+        file_name = uploaded_file.name
         excel_file = pd.ExcelFile(uploaded_file)
-        temp_dir = tempfile.mkdtemp()
-
-        for sheet_name in excel_file.sheet_names:
-            df = excel_file.parse(sheet_name)
-            output_path = f"{temp_dir}/{sheet_name}.xlsx"
-            df.to_excel(output_path, index=False, sheet_name=sheet_name)
-
-        zip_buffer = io.BytesIO()
-        shutil.make_archive(zip_buffer, 'zip', temp_dir)
-        zip_buffer.seek(0)
-
-        st.success("✅ 시트 분할 완료!")
-        st.download_button("📥 분할된 파일 다운로드", zip_buffer, "sheets.zip", "application/zip")
+    
+        if not excel_file.sheet_names:
+            st.error("❌ 해당 엑셀 파일에 시트가 없습니다.")
+        else:
+            # ZIP 파일을 메모리에 생성
+            zip_buffer = BytesIO()
+    
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for sheet_name in excel_file.sheet_names:
+                    df = excel_file.parse(sheet_name)
+                    
+                    # 각 시트를 엑셀 파일로 변환
+                    sheet_io = BytesIO()
+                    with pd.ExcelWriter(sheet_io, engine="xlsxwriter") as writer:
+                        df.to_excel(writer, index=False, sheet_name=sheet_name)
+                    
+                    # ZIP에 추가
+                    zip_file.writestr(f"{sheet_name}.xlsx", sheet_io.getvalue())
+    
+            # ZIP 파일 다운로드
+            zip_buffer.seek(0)
+            st.download_button(
+                label="📥 ZIP 파일 다운로드",
+                data=zip_buffer,
+                file_name=f"{file_name}_시트분할.zip",
+                mime="application/zip",
+            )
 
 # 3. 단어수 카운터
 elif page == "단어수 카운터":
