@@ -146,10 +146,27 @@ elif page == "월간 보고 데이터":
         total_row = pd.DataFrame({'프로젝트 이름': ['합계'], '요청수': [project_summary_df['요청수'].sum()], '단어수_합계': [project_summary_df['단어수_합계'].sum()]})
         project_summary_df = pd.concat([project_summary_df, total_row], ignore_index=True)
 
+        # C2 셀에서 시트명을 동적으로 생성
+        c2_value = df_filtered['기한'].iloc[0]  # C2 내용 (기한 열의 첫 번째 값)
+        sheet_name_prefix = c2_value[2:4] + c2_value[5:7]  # 2, 3, 5, 6번째 글자 추출
+        original_sheet_name = sheet_name_prefix  # '원본 데이터' 시트명
+        summary_sheet_name = sheet_name_prefix + " 월별 통계"  # '프로젝트별 요약' 시트명
+
+        # 동적으로 파일명 생성
+        file_name = f"{sheet_name_prefix}_project_summary.xlsx"
+
+        # Excel 파일로 저장
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df_filtered.to_excel(writer, index=False, sheet_name="원본 데이터")
-            project_summary_df.to_excel(writer, index=False, sheet_name="프로젝트별 요약")
+            df_filtered.to_excel(writer, index=False, sheet_name=original_sheet_name)
+            project_summary_df.to_excel(writer, index=False, sheet_name=summary_sheet_name)
         output.seek(0)
 
-        st.download_button("📥 엑셀 파일 다운로드", output, "project_summary.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        # 다운로드 버튼
+        st.download_button(
+            label="📥 엑셀 파일 다운로드",
+            data=output,
+            file_name=file_name,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
