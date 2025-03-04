@@ -53,6 +53,7 @@ Pygments
 pyinstaller
 pyinstaller-hooks-contrib
 PyMuPDF
+pymupdf
 pyparsing
 pyperclip
 python-dateutil
