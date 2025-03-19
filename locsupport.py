@@ -176,8 +176,8 @@ elif page == "단어수 카운터(웹)":
     st.write("텍스트를 입력하면 띄어쓰기 기준으로 단어 수를 계산합니다.")
 
     def count_words(text):
-    words = text.split()
-    return len(words)
+        words = text.split()
+        return len(words)
 
     # 초기 상태 설정
     if 'text_input' not in st.session_state:
