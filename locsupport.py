@@ -179,25 +179,15 @@ elif page == "단어수 카운터(웹)":
         words = text.split()
         return len(words)
 
-    # 초기 상태 설정
-    if 'text_input' not in st.session_state:
-        st.session_state.text_input = ""
-    
     if 'word_count' not in st.session_state:
         st.session_state.word_count = 0
-    
-    # 단어 수 업데이트 함수
+
+    st.subheader(f"단어 수: {st.session_state.word_count}")
+
     def update_word_count():
         st.session_state.word_count = count_words(st.session_state.text_input)
 
-    st.subheader(f"단어 수: {st.session_state.word_count}")
-    
-    # 텍스트 입력 필드
-    text_input = st.text_area("텍스트 입력", height=200, key="text_input")
-    
-    # 버튼 클릭 시 단어 수 업데이트
-    if st.button("단어 수 계산"):
-        update_word_count()
+    text_input = st.text_area("텍스트 입력", height=200, key='text_input', on_change=update_word_count)
     
     
 
