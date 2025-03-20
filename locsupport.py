@@ -15,14 +15,14 @@ st.set_page_config(page_title="엑셀 도구 모음", layout="centered")
 
 # 사이드바 메뉴
 st.sidebar.title("엑셀 도구 모음")
-page = st.sidebar.radio(" ", ("엑셀 데이터 복사", "엑셀 시트 분할", "단어수 카운터(파일)", "단어수 카운터(웹)", "월간 보고 데이터"))
+page = st.sidebar.radio(" ", ("엑셀 데이터 복사", "엑셀 파일 미리보기", "엑셀 시트 분할", "단어수 카운터(파일)","단어수 카운터(웹)","월간 보고 데이터"))
 
 # 1. 엑셀 데이터 복사
 if page == "엑셀 데이터 복사":
     st.title('📄엑셀 데이터 복사')
     st.write(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 복사됩니다.]")
 
-    uploaded_file = st.file_uploader("엑셀 파일 업로드", type=["xlsx"])
+    uploaded_file = st.file_uploader("엑셀 파일 업로드", type=["xlsx", "xls"])
     default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese", "CNS (중국어 간체)"]
     keywords_input = st.text_area("찾을 키워드(언어열 이름)", value=", ".join(default_keywords))
 
@@ -198,3 +198,22 @@ elif page == "단어수 카운터(웹)":
         update_word_count()
     
     st.subheader(f"단어 수: {st.session_state.word_count}")
+
+# 6. 엑셀 파일 미리보기
+elif page == "엑셀 파일 미리보기":
+    st.title("🔍엑셀 파일 미리보기")
+    st.write("파일을 업로드 하면 내용을 미리 볼 수 있습니다.")
+
+    # 파일 업로드
+    uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx", "xls"])
+
+    if uploaded_file is not None:
+        # 엑셀 파일 로드
+        xls = pd.ExcelFile(uploaded_file)
+        
+        # 데이터프레임 로드 (첫 번째 시트 자동 선택)
+        df = pd.read_excel(xls, sheet_name=0)
+        
+        # 데이터 미리보기
+        st.write("### 데이터 미리보기")
+        st.dataframe(df.head(20))  # 상위 20개 행 미리보기
