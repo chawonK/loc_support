@@ -189,6 +189,8 @@ elif page == "단어수 카운터(웹)":
     # 단어 수 업데이트 함수
     def update_word_count():
         st.session_state.word_count = count_words(st.session_state.text_input)
+
+    st.subheader(f"단어 수: {st.session_state.word_count}")
     
     # 텍스트 입력 필드
     text_input = st.text_area("텍스트 입력", height=200, key="text_input")
@@ -197,7 +199,7 @@ elif page == "단어수 카운터(웹)":
     if st.button("단어 수 계산"):
         update_word_count()
     
-    st.subheader(f"단어 수: {st.session_state.word_count}")
+    
 
 # 6. 엑셀 파일 미리보기
 elif page == "엑셀 파일 미리보기":
