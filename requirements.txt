@@ -1,5 +1,5 @@
 acres
-altair
+altair 4.x
 altgraph
 attrs
 blinker
@@ -55,7 +55,6 @@ pyinstaller-hooks-contrib
 PyMuPDF
 pymupdf
 pyparsing
-pyperclip
 python-dateutil
 python-docx
 python-pptx
