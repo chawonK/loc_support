@@ -1,5 +1,5 @@
 acres
-altair 4.x
+altair>=4.0,<5
 altgraph
 attrs
 blinker
