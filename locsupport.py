@@ -10,7 +10,7 @@ st.set_page_config(page_title="엑셀 도구 모음", layout="centered")
 
 # 사이드바 메뉴
 st.sidebar.title("엑셀 도구 모음")
-page = st.sidebar.radio(" ", ("엑셀 데이터 복사 & 미리보기", "엑셀 시트 분할", "단어수 카운터(웹)", "월간 보고 데이터"))
+page = st.sidebar.radio(" ", ("엑셀 데이터 복사 & 미리보기", "엑셀 시트 분할", "엑셀 분할(분류별)", "단어수 카운터(웹)", "월간 보고 데이터"))
 
 # 1. 엑셀 데이터 복사 + 미리보기
 if page == "엑셀 데이터 복사 & 미리보기":
@@ -118,6 +118,41 @@ elif page == "엑셀 시트 분할":
                 data=zip_buffer,
                 file_name=f"{file_name}_시트분할.zip",
                 mime="application/zip",
+            )
+
+# 2-2. 엑셀 분할(분류별)
+elif page == "엑셀 분할(분류별)":
+    st.title("✂️ 엑셀 분할(분류별)")
+    st.caption("※ 엑셀 파일의 특정 열을 기준으로 데이터를 분할하여 각 분류별로 개별 엑셀 파일로 저장합니다.")
+    
+    uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요 (.xlsx)", type=["xlsx"])
+
+    if uploaded_file:
+        df = pd.read_excel(uploaded_file)
+    
+        # 사용자에게 분류 기준 열 선택 UI 제공
+        columns = df.columns.tolist()
+        selected_column = st.selectbox("분류 기준 열을 선택하세요", columns)
+    
+        if st.button("🚀 분할 실행 (웹용 ZIP 다운로드)", use_container_width=True):
+            grouped = df.groupby(selected_column)
+    
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for category, group in grouped:
+                    sanitized_name = re.sub(r'[\\/*?:"<>|]', "_", str(category))
+                    excel_buffer = BytesIO()
+                    group.to_excel(excel_buffer, index=False)
+                    excel_buffer.seek(0)
+                    zip_file.writestr(f"{sanitized_name}.xlsx", excel_buffer.read())
+    
+            zip_buffer.seek(0)
+            st.success("✅ 분류별 엑셀 파일 분할 완료! ZIP 다운로드 가능")
+            st.download_button(
+                label="📦 ZIP 파일 다운로드",
+                data=zip_buffer,
+                file_name="분류별_엑셀_분할.zip",
+                mime="application/zip"
             )
 
 # 3. 월간 보고 데이터
