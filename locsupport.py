@@ -134,7 +134,7 @@ elif page == "엑셀 분할(분류별)":
         columns = df.columns.tolist()
         selected_column = st.selectbox("분류 기준 열을 선택하세요", columns)
     
-        if st.button("🚀 분할 실행 (웹용 ZIP 다운로드)", use_container_width=True):
+        if st.button("🚀 분할 실행 (ZIP 파일 다운로드)", use_container_width=True):
             grouped = df.groupby(selected_column)
     
             zip_buffer = BytesIO()
