@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import openpyxl
 import pandas as pd
 import io
@@ -15,7 +16,7 @@ st.set_page_config(page_title="엑셀 도구 모음", layout="centered")
 
 # 사이드바 메뉴
 st.sidebar.title("엑셀 도구 모음")
-page = st.sidebar.radio(" ", ("엑셀 데이터 복사", "엑셀 파일 미리보기", "엑셀 시트 분할", "단어수 카운터(파일)","단어수 카운터(웹)","월간 보고 데이터"))
+page = st.sidebar.radio(" ", ("엑셀 데이터 복사", "엑셀 파일 미리보기", "엑셀 시트 분할", "단어수 카운터(웹)","월간 보고 데이터"))
 
 # 1. 엑셀 데이터 복사
 if page == "엑셀 데이터 복사":
@@ -23,7 +24,7 @@ if page == "엑셀 데이터 복사":
     st.write(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 복사됩니다.]")
 
     uploaded_file = st.file_uploader("엑셀 파일 업로드", type=["xlsx", "xls"])
-    default_keywords = ["중간_CNS", "zh-hans", "CNS", "zh_CN", "Simplified Chinese", "CNS (중국어 간체)"]
+    default_keywords = ["중간_CNS", "중간_CHS", "zh-hans", "CNS", "CHS", "zh_CN", "Simplified Chinese", "CNS (중국어 간체)"]
     keywords_input = st.text_area("찾을 키워드(언어열 이름)", value=", ".join(default_keywords))
 
     if uploaded_file:
@@ -95,43 +96,7 @@ elif page == "엑셀 시트 분할":
                 mime="application/zip",
             )
 
-# 3. 단어수 카운터
-elif page == "단어수 카운터(파일)":
-    st.title("🔢 단어수 카운터(파일)")
-    st.caption("※ 여러 언어가 섞인 파일은 단어수가 부정확하게 나옵니다. 참고용으로만 이용해주세요.")
-    uploaded_file = st.file_uploader("파일 업로드 (Word, PPTX, Excel, PDF, TXT)", type=["pptx", "docx", "xlsx", "pdf", "txt"])
-
-    def count_words(text):
-        return len(text.split()) if text else 0
-
-    if uploaded_file:
-        file_name = uploaded_file.name.lower()
-        word_count, file_preview = 0, ""
-
-        if file_name.endswith(".docx"):
-            doc = Document(uploaded_file)
-            file_preview = "\n".join([para.text[:300] for para in doc.paragraphs])
-            word_count = count_words(file_preview)
-        elif file_name.endswith(".pptx"):
-            prs = Presentation(uploaded_file)
-            file_preview = "\n".join([shape.text[:300] for slide in prs.slides for shape in slide.shapes if hasattr(shape, "text")])
-            word_count = count_words(file_preview)
-        elif file_name.endswith(".xlsx"):
-            wb = openpyxl.load_workbook(uploaded_file)
-            file_preview = "\n".join([str(cell.value)[:300] for ws in wb.worksheets for row in ws.iter_rows() for cell in row if cell.value])
-            word_count = count_words(file_preview)
-        elif file_name.endswith(".pdf"):
-            doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
-            file_preview = "\n".join([page.get_text()[:300] for page in doc])
-            word_count = count_words(file_preview)
-        elif file_name.endswith(".txt"):
-            file_preview = uploaded_file.read().decode("utf-8")[:300]
-            word_count = count_words(file_preview)
-
-        st.markdown(f"### 단어수: <span style='color: #4CAF50; font-size: 24px;'>{word_count}</span>", unsafe_allow_html=True)
-        st.text_area("파일 내용 미리보기:", file_preview, height=200)
-
-# 4. 월간 보고 데이터
+# 3. 월간 보고 데이터
 elif page == "월간 보고 데이터":
     st.title("📊 Jira CSV 데이터 추출기")
     st.caption("Jira에서 요청 필터 페이지에서 우측 상단의 '보기' > 'CSV (모든 필드)'로 다운로드 받은 월별 전체 요청 파일을 업로드 하면 월별 프로젝트별 요청수, 단어수 합계를 볼 수 있습니다.")
@@ -170,7 +135,7 @@ elif page == "월간 보고 데이터":
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-# 5. 단어수 카운터
+# 4. 단어수 카운터
 elif page == "단어수 카운터(웹)":
     st.title("🔢 단어수 카운터(웹)")
     st.write("텍스트를 입력하면 띄어쓰기 기준으로 단어 수를 계산합니다.")
@@ -191,7 +156,7 @@ elif page == "단어수 카운터(웹)":
     
     
 
-# 6. 엑셀 파일 미리보기
+# 5. 엑셀 파일 미리보기
 elif page == "엑셀 파일 미리보기":
     st.title("🔍엑셀 파일 미리보기")
     st.write("파일을 업로드 하면 내용을 미리 볼 수 있습니다.")
