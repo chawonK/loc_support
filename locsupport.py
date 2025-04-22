@@ -2,35 +2,37 @@ import streamlit as st
 import streamlit.components.v1 as components
 import openpyxl
 import pandas as pd
-import io
-import fitz  
 import re
-import tempfile
 import zipfile
 from io import BytesIO
-from docx import Document
-from pptx import Presentation
 
-# 페이지 설정
 st.set_page_config(page_title="엑셀 도구 모음", layout="centered")
 
 # 사이드바 메뉴
 st.sidebar.title("엑셀 도구 모음")
-page = st.sidebar.radio(" ", ("엑셀 데이터 복사", "엑셀 파일 미리보기", "엑셀 시트 분할", "단어수 카운터(웹)","월간 보고 데이터"))
+page = st.sidebar.radio(" ", ("엑셀 데이터 복사 & 미리보기", "엑셀 시트 분할", "단어수 카운터(웹)", "월간 보고 데이터"))
 
-# 1. 엑셀 데이터 복사
-if page == "엑셀 데이터 복사":
-    st.title('📄엑셀 데이터 복사')
-    st.write(":rainbow[지정된 키워드 바로 아래 행부터 전체 내용이 복사됩니다.]")
+# 1. 엑셀 데이터 복사 + 미리보기
+if page == "엑셀 데이터 복사 & 미리보기":
+    st.title("📄 엑셀 데이터 복사 & 미리보기")
+    st.write(":rainbow[지정된 키워드 바로 아래 행부터 복사하며, 시트 내용을 함께 미리볼 수 있습니다.]")
 
-    uploaded_file = st.file_uploader("엑셀 파일 업로드", type=["xlsx", "xls"])
+    # 파일 업로드
+    uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx", "xls"])
+
     default_keywords = ["중간_CNS", "중간_CHS", "zh-hans", "CNS", "CHS", "zh_CN", "Simplified Chinese", "CNS (중국어 간체)"]
     keywords_input = st.text_area("찾을 키워드(언어열 이름)", value=", ".join(default_keywords))
 
     if uploaded_file:
-        keywords = [keyword.strip() for keyword in keywords_input.split(',')]
+        # 시트 선택
+        xls = pd.ExcelFile(uploaded_file)
+        sheet_names = xls.sheet_names
+        selected_sheet = st.selectbox("시트를 선택하세요", sheet_names)
+
+        # 복사 처리 (openpyxl)
         wb = openpyxl.load_workbook(uploaded_file, data_only=True)
-        ws = wb.active
+        ws = wb[selected_sheet]
+        keywords = [k.strip() for k in keywords_input.split(',')]
 
         target_row, target_column = None, None
         for row_idx, row in enumerate(ws.iter_rows(values_only=True), start=1):
@@ -48,13 +50,35 @@ if page == "엑셀 데이터 복사":
             formatted_text = "\n".join(f'"{value}"' for value in values)
 
             if values:
-                st.success("✅ 데이터 준비 완료! 아래 박스에서 복사해서 사용하세요.")
-                st.text_area("복사된 내용", formatted_text, height=200)
-                st.download_button("📥 텍스트 다운로드", formatted_text, "data.txt")
+                st.success("✅ 데이터 추출 완료! 아래에서 복사하거나 다운로드하세요.")
+                st.text_area("복사할 텍스트", formatted_text, height=200)
+
+                # JS 복사 버튼 (Streamlit Components)
+                js_text = formatted_text.replace("\n", "\\n").replace('"', '\\"')
+                components.html(f"""
+                    <button onclick="navigator.clipboard.writeText('{js_text}')">
+                        📋 복사하기 (클립보드)
+                    </button>
+                """, height=40)
+
+                # 텍스트 파일 다운로드
+                st.download_button("📥 텍스트 다운로드", formatted_text, "extracted_data.txt")
             else:
                 st.warning("⚠️ 복사할 데이터가 없습니다.")
 
         wb.close()
+
+        # 시트 미리보기
+        df = pd.read_excel(xls, sheet_name=selected_sheet)
+        if not df.empty:
+            st.divider()
+            st.subheader(f"🔍 '{selected_sheet}' 시트 미리보기")
+            st.dataframe(df.head(20))
+        else:
+            st.warning(f"⚠️ '{selected_sheet}' 시트에 표시할 데이터가 없습니다.")
+    else:
+        st.caption("파일을 업로드해 주세요.")
+
 
 # 2. 엑셀 시트 분할
 elif page == "엑셀 시트 분할":
@@ -153,24 +177,3 @@ elif page == "단어수 카운터(웹)":
         st.session_state.word_count = count_words(st.session_state.text_input)
 
     text_input = st.text_area("텍스트 입력", height=200, key='text_input', on_change=update_word_count)
-    
-    
-
-# 5. 엑셀 파일 미리보기
-elif page == "엑셀 파일 미리보기":
-    st.title("🔍엑셀 파일 미리보기")
-    st.write("파일을 업로드 하면 내용을 미리 볼 수 있습니다.")
-
-    # 파일 업로드
-    uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx", "xls"])
-
-    if uploaded_file is not None:
-        # 엑셀 파일 로드
-        xls = pd.ExcelFile(uploaded_file)
-        
-        # 데이터프레임 로드 (첫 번째 시트 자동 선택)
-        df = pd.read_excel(xls, sheet_name=0)
-        
-        # 데이터 미리보기
-        st.write("### 데이터 미리보기")
-        st.dataframe(df.head(20))  # 상위 20개 행 미리보기
