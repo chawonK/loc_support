@@ -216,6 +216,7 @@ elif page == "단어수 카운터(웹)":
 # 5. VLOOKUP 스타일 파일 매칭기
 elif page == "Vlookup 매칭":
     st.title("🔎 VLOOKUP 스타일 파일 매칭기")
+    st.write("기준 파일과 내용을 가져올 파일을 업로드 하면 매칭할 열을 선택할 수 있습니다.")
 
     def vlookup_page():
         # 파일 업로드
