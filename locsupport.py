@@ -216,73 +216,73 @@ elif page == "단어수 카운터(웹)":
 # 5. VLOOKUP 스타일 파일 매칭기
 elif page == "Vlookup 매칭":
     st.title("🔎 VLOOKUP 스타일 파일 매칭기")
+
     def vlookup_page():
-        
-    # 파일 업로드
-    base_file = st.file_uploader("기준 파일을 업로드하세요", type=["xlsx", "csv"])
-    lookup_file = st.file_uploader("내용을 가져올 파일을 업로드하세요", type=["xlsx", "csv"])
+        # 파일 업로드
+        base_file = st.file_uploader("기준 파일을 업로드하세요", type=["xlsx", "csv"])
+        lookup_file = st.file_uploader("내용을 가져올 파일을 업로드하세요", type=["xlsx", "csv"])
 
-    if base_file and lookup_file:
-        # 파일 읽기 with 예외처리
-        try:
-            if base_file.name.endswith('csv'):
-                df_base = pd.read_csv(base_file)
-            else:
-                df_base = pd.read_excel(base_file)
-        except Exception as e:
-            st.error(f"\uae30\uc900 \ud30c\uc77c \uc77d\uae30 \uc2e4\ud328: {e}")
-            st.stop()
+        if base_file and lookup_file:
+            # 파일 읽기 with 예외처리
+            try:
+                if base_file.name.endswith('csv'):
+                    df_base = pd.read_csv(base_file)
+                else:
+                    df_base = pd.read_excel(base_file)
+            except Exception as e:
+                st.error(f"기준 파일 읽기 실패: {e}")
+                st.stop()
 
-        try:
-            if lookup_file.name.endswith('csv'):
-                df_lookup = pd.read_csv(lookup_file)
-            else:
-                df_lookup = pd.read_excel(lookup_file)
-        except Exception as e:
-            st.error(f"\ub0b4\uc6a9 \ud30c\uc77c \uc77d\uae30 \uc2e4\ud328: {e}")
-            st.stop()
+            try:
+                if lookup_file.name.endswith('csv'):
+                    df_lookup = pd.read_csv(lookup_file)
+                else:
+                    df_lookup = pd.read_excel(lookup_file)
+            except Exception as e:
+                st.error(f"내용 파일 읽기 실패: {e}")
+                st.stop()
 
-        # 데이터 비어있는지 체크
-        if df_base.empty or df_lookup.empty:
-            st.error("\uc5c5\ub85c\ub4dc\ub41c \ud30c\uc77c\uc5d0 \ub370\uc774\ud130\uac00 \uc5c6\uc2b5\ub2c8\ub2e4. \ub2e4\uc2dc \ud655\uc778\ud574\uc8fc\uc138\uc694.")
-            st.stop()
+            # 데이터 비어있는지 체크
+            if df_base.empty or df_lookup.empty:
+                st.error("업로드된 파일에 데이터가 없습니다. 다시 확인해주세요.")
+                st.stop()
 
-        st.subheader("\uae30\uc900 \ud30c\uc77c \uc5f4 \uc120\ud0dd")
-        key_base = st.selectbox("\ub9e4\uce6d\uc5d0 \uc0ac\uc6a9\ud560 \uae30\uc900 \ud30c\uc77c \uc5f4 \uc120\ud0dd", df_base.columns)
+            st.subheader("기준 파일 열 선택")
+            key_base = st.selectbox("매칭에 사용할 기준 파일 열 선택", df_base.columns)
 
-        st.subheader("\ub0b4\uc6a9\uc744 \uac00\uc838\uc62c \ud30c\uc77c \uc5f4 \uc120\ud0dd")
-        key_lookup = st.selectbox("\ub9e4\uce6d\uc5d0 \uc0ac\uc6a9\ud560 \ub0b4\uc6a9 \uac00\uc838\uc62c \ud30c\uc77c \uc5f4 \uc120\ud0dd", df_lookup.columns)
+            st.subheader("내용을 가져올 파일 열 선택")
+            key_lookup = st.selectbox("매칭에 사용할 내용 가져올 파일 열 선택", df_lookup.columns)
 
-        st.subheader("\uac00\uc838\uc62c \ub0b4\uc6a9 \uc5f4(\ubaa8\ub4e0 \uac12 \uac00\ub2a5)")
-        value_columns = st.multiselect("\ub0b4\uc6a9 \uac00\uc838\uc62c \ud30c\uc77c\uc5d0\uc11c \uac00\uc838\uc62c \uc5f4\uc744 \uc120\ud0dd\ud558\uc138\uc694", df_lookup.columns)
+            st.subheader("가져올 내용의 열 (여러 개 선택 가능)")
+            value_columns = st.multiselect("내용 가져올 파일에서 가져올 열을 선택하세요", df_lookup.columns)
 
-        # 매칭 시작
-        if st.button("\ub9e4\uce6d \uc2dc\uc791"):
-            df_result = df_base.copy()
-            for col in value_columns:
-                lookup_dict = dict(zip(df_lookup[key_lookup], df_lookup[col]))
-                df_result[f"{col}_\uac00\uc838\uc62c"] = df_result[key_base].map(lookup_dict)
+            # 매칭 시작
+            if st.button("매칭 시작"):
+                df_result = df_base.copy()
+                for col in value_columns:
+                    lookup_dict = dict(zip(df_lookup[key_lookup], df_lookup[col]))
+                    df_result[f"{col}_가져옴"] = df_result[key_base].map(lookup_dict)
 
-            st.success("\ub9e4\uce6d \uc644\ub8cc!")
-            st.dataframe(df_result)
+                st.success("매칭 완료!")
+                st.dataframe(df_result)
 
-            # 결과 다운로드
-            @st.cache_data
-            def convert_df(df):
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    df.to_excel(writer, index=False)
-                output.seek(0)
-                return output.getvalue()
+                # 결과 다운로드
+                @st.cache_data
+                def convert_df(df):
+                    output = BytesIO()
+                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                        df.to_excel(writer, index=False)
+                    output.seek(0)
+                    return output.getvalue()
 
-            excel_data = convert_df(df_result)
-            st.download_button(
-                label="\ud83d\udc45 \uacb0\uacfc \ud30c\uc77c \ub2e4\uc6b4\ub85c\ub4dc",
-                data=excel_data,
-                file_name='merged_result.xlsx',
-                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
+                excel_data = convert_df(df_result)
+                st.download_button(
+                    label="📥 결과 파일 다운로드",
+                    data=excel_data,
+                    file_name='merged_result.xlsx',
+                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
 
-    # 실제 실행 코드 (페이지 구분)
-    if __name__ == "__main__":
-        vlookup_page()
+    # 함수 실행
+    vlookup_page()
+
